@@ -8,7 +8,7 @@ An AI-powered journaling app that applies **Cognitive Behavioral Therapy (CBT)**
 
 ## Live Demo
 
-**[View on Netlify →](https://your-netlify-url.netlify.app)**
+**[View on Netlify →](https://mindful-log.netlify.app/)**
 
 ---
 
