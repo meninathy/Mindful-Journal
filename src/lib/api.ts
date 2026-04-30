@@ -120,6 +120,10 @@ export async function analyzeEntry(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),
   })
-  if (!res.ok) throw new Error(await res.text())
+  if (!res.ok) {
+    let msg = `Server error ${res.status}`
+    try { const j = await res.json(); msg = j.error ?? msg } catch { msg = await res.text() || msg }
+    throw new Error(msg)
+  }
   return res.json()
 }

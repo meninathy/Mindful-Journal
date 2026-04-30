@@ -28,7 +28,8 @@ export function useCreateEntry(journalId: string) {
         qc.invalidateQueries({ queryKey: ['entries', 'all'] })
       } catch (err) {
         console.error('Analysis failed:', err)
-        throw new Error('Entry saved, but AI analysis failed. Check that the server is running.')
+        const msg = err instanceof Error ? err.message : 'Unknown error'
+        throw new Error(`Entry saved, but AI analysis failed: ${msg}`)
       }
 
       return entry
