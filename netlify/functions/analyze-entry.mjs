@@ -43,11 +43,8 @@ export default async (req) => {
 
     const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
-      return Response.json({
-        sentiment: 'Balanced',
-        distortions: [],
-        mirror_prompt: 'What feels most alive or meaningful to you in what you just wrote?',
-      })
+      console.error('GROQ_API_KEY is not set in environment variables')
+      return Response.json({ error: 'GROQ_API_KEY is not configured' }, { status: 500 })
     }
 
     const groq = new Groq({ apiKey })
