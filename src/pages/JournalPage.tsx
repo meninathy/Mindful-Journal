@@ -121,8 +121,13 @@ export function JournalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!content.trim()) return
-    await createEntry.mutateAsync(content.trim())
-    setContent('')
+    const text = content.trim()
+    setContent('') // clear immediately so the user can keep writing
+    try {
+      await createEntry.mutateAsync(text)
+    } catch {
+      // error is displayed via createEntry.error below
+    }
   }
 
   return (
@@ -167,7 +172,13 @@ export function JournalPage() {
             </div>
             {createEntry.isPending && (
               <div className="flex items-center gap-2 text-xs font-body text-mindful-dark/50 animate-pulse-soft">
-                <span>🤖</span> AI is reading your entry and crafting a reflection...
+                <span>🤖</span> Entry saved — AI is crafting your reflection...
+              </div>
+            )}
+            {createEntry.isError && (
+              <div className="flex items-center gap-2 text-xs font-body text-orange-600 bg-orange-50 rounded-2xl px-3 py-2">
+                <span>⚠️</span>
+                {createEntry.error instanceof Error ? createEntry.error.message : 'Analysis failed — make sure the server is running with npm run dev'}
               </div>
             )}
           </form>

@@ -19,15 +19,24 @@ export function useCreateEntry(journalId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (content: string) => {
+      // Save entry immediately so it shows up in the list
       const entry = await createEntry(journalId, content)
-      const result = await analyzeEntry(entry.id, content)
-      patchEntryAnalysis(entry.id, result.sentiment as Sentiment, result.distortions as Distortion[])
-      upsertInsight(entry.id, result.mirror_prompt)
-      return { ...entry, sentiment: result.sentiment as Sentiment, distortions: result.distortions as Distortion[], mirror_prompt: result.mirror_prompt }
-    },
-    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['entries', journalId] })
-      qc.invalidateQueries({ queryKey: ['entries', 'all'] })
+
+      // Run analysis — if it fails the entry still exists, just without analysis
+      try {
+        const result = await analyzeEntry(entry.id, content)
+        patchEntryAnalysis(entry.id, result.sentiment as Sentiment, result.distortions as Distortion[])
+        upsertInsight(entry.id, result.mirror_prompt)
+        qc.invalidateQueries({ queryKey: ['entries', journalId] })
+        qc.invalidateQueries({ queryKey: ['entries', 'all'] })
+      } catch (err) {
+        // Analysis failed — entry is still saved, just without sentiment/insight
+        console.error('Analysis failed:', err)
+        throw new Error('Entry saved, but AI analysis failed. Check that the server is running.')
+      }
+
+      return entry
     },
   })
 }
