@@ -30,23 +30,39 @@ Rules:
 - One sentence only, specific to this entry
 - Respond with ONLY the question, no preamble`
 
-export default async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204 })
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+}
+
+export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: CORS, body: '' }
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) }
+  }
+
+  let content
+  try {
+    content = JSON.parse(event.body || '{}').content
+  } catch {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) }
+  }
+
+  if (!content) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'content is required' }) }
+  }
+
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) {
+    console.error('GROQ_API_KEY is not set')
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'GROQ_API_KEY is not configured on the server' }) }
   }
 
   try {
-    const { content } = await req.json()
-    if (!content) {
-      return Response.json({ error: 'content is required' }, { status: 400 })
-    }
-
-    const apiKey = process.env.GROQ_API_KEY
-    if (!apiKey) {
-      console.error('GROQ_API_KEY is not set in environment variables')
-      return Response.json({ error: 'GROQ_API_KEY is not configured' }, { status: 500 })
-    }
-
     const groq = new Groq({ apiKey })
 
     const [analysisRes, mirrorRes] = await Promise.all([
@@ -84,11 +100,17 @@ export default async (req) => {
 
     const mirror_prompt = (mirrorRes.choices[0].message.content ?? '').trim()
 
-    return Response.json({ sentiment, distortions, mirror_prompt })
+    return {
+      statusCode: 200,
+      headers: CORS,
+      body: JSON.stringify({ sentiment, distortions, mirror_prompt }),
+    }
   } catch (err) {
-    console.error('analyze-entry error:', err.message)
-    return Response.json({ error: err.message }, { status: 500 })
+    console.error('Groq error:', err.message)
+    return {
+      statusCode: 500,
+      headers: CORS,
+      body: JSON.stringify({ error: err.message }),
+    }
   }
 }
-
-export const config = { path: '/api/analyze-entry' }
