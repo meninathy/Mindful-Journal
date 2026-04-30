@@ -1,10 +1,15 @@
 import { create } from 'zustand'
-import type { LocalUser } from '../lib/localData'
+
+export interface AppUser {
+  id: string
+  email?: string | null
+  username?: string
+}
 
 interface AuthState {
-  user: LocalUser | null
+  user: AppUser | null
   loading: boolean
-  setUser: (user: LocalUser | null) => void
+  setUser: (user: AppUser | null) => void
   setLoading: (loading: boolean) => void
 }
 

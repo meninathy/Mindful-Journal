@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
 import { WhimsicalBackground } from '../components/ui/WhimsicalBackground'
 import { clearLocalUser } from '../lib/localData'
+import { supabase, SUPABASE_ENABLED } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
 const JOURNAL_COLORS = [
@@ -33,9 +34,13 @@ export function DashboardPage() {
     setCreating(false)
   }
 
-  const handleSignOut = () => {
-    clearLocalUser()
-    setUser(null)
+  const handleSignOut = async () => {
+    if (SUPABASE_ENABLED) {
+      await supabase.auth.signOut()
+    } else {
+      clearLocalUser()
+      setUser(null)
+    }
   }
 
   return (

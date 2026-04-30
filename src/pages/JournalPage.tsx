@@ -10,7 +10,9 @@ import { SentimentBadge } from '../components/analysis/SentimentBadge'
 import { DistortionBadge } from '../components/analysis/DistortionBadge'
 import { MirrorPrompt } from '../components/analysis/MirrorPrompt'
 import { GroundingAid } from '../components/grounding/GroundingAid'
+import { CrisisSupport } from '../components/grounding/CrisisSupport'
 import { WhimsicalBackground } from '../components/ui/WhimsicalBackground'
+import { AIDisclosureBanner } from '../components/ui/AIDisclosureBanner'
 import type { Entry } from '../types'
 
 function HighlightedText({ content, distortions }: { content: string; distortions: Entry['distortions'] }) {
@@ -109,6 +111,7 @@ export function JournalPage() {
   const deleteEntry = useDeleteEntry(journalId!)
   const [content, setContent] = useState('')
   const [showGrounding, setShowGrounding] = useState(false)
+  const [showCrisis, setShowCrisis] = useState(false)
 
   const { data: journal } = useQuery({
     queryKey: ['journal', journalId],
@@ -147,7 +150,12 @@ export function JournalPage() {
           <Button size="sm" variant="ghost" onClick={() => setShowGrounding(true)}>
             🌿 Ground Me
           </Button>
+          <Button size="sm" variant="danger" onClick={() => setShowCrisis(true)}>
+            🆘 Crisis Help
+          </Button>
         </div>
+
+        <AIDisclosureBanner />
 
         {/* New entry form */}
         <Card className="mb-6 border-mindful-pink/30 bg-white/80 backdrop-blur-sm">
@@ -216,6 +224,7 @@ export function JournalPage() {
       </div>
 
       {showGrounding && <GroundingAid onClose={() => setShowGrounding(false)} />}
+      {showCrisis && <CrisisSupport onClose={() => setShowCrisis(false)} />}
     </div>
   )
 }

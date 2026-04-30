@@ -1,73 +1,143 @@
-# React + TypeScript + Vite
+# The Mindful Log
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An AI-powered journaling app that applies **Cognitive Behavioral Therapy (CBT)** principles to help users identify negative thought patterns and reflect with self-compassion.
 
-Currently, two official plugins are available:
+> Built for the Applied Artificial Intelligence program at Miami Dade College — Wolfson Campus / AI Center.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Live Demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**[View on Netlify →](https://your-netlify-url.netlify.app)**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Feature | Description |
+|---------|-------------|
+| 📝 **Multi-Journal Support** | Create separate journals for different areas of life |
+| 🧠 **AI Sentiment Analysis** | Every entry classified as Positive, Balanced, or High-Distress |
+| 🔍 **Cognitive Distortion Detection** | Identifies Should Statements, Catastrophizing, and All-or-Nothing Thinking with phrase-level highlighting |
+| 🪞 **Reflective Mirror** | AI generates a personalized, non-directive reflection question per entry |
+| 🌿 **Grounding Aid** | Step-by-step 5-4-3-2-1 sensory grounding exercise |
+| 🆘 **Crisis Support** | Immediate access to 988, Crisis Text Line, and SAMHSA helpline |
+| 📊 **Journey Map** | Mood trend charts and distortion frequency over time |
+| 🔐 **Secure Persistence** | Supabase PostgreSQL with Row-Level Security |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech Stack
+
+- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
+- **AI Model:** Llama 3.1 via Groq API (free tier)
+- **Database:** Supabase (PostgreSQL + Auth + RLS)
+- **Deployment:** Netlify (static frontend + serverless functions)
+- **Design:** Doodles-inspired pastel aesthetic — Quicksand + Comfortaa fonts
+
+---
+
+## AI & Ethics
+
+- **AI Disclosure:** Users are informed on every page that AI is analyzing their entries
+- **Non-Diagnostic:** The app explicitly does not provide clinical diagnoses
+- **Crisis Safety:** High-Distress entries surface hotlines (988, Crisis Text Line, SAMHSA)
+- **Privacy:** All data isolated per user via Supabase Row-Level Security
+- **Transparency:** AI model (Llama 3.1 via Groq) is named in the UI
+
+---
+
+## Running Locally
+
+### Prerequisites
+- Node.js 18+
+- Free [Groq API key](https://console.groq.com) — no credit card required
+- Optional: Free [Supabase project](https://supabase.com) for persistent DB
+
+### Setup
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/meninathy/Mindful-Journal.git
+cd Mindful-Journal
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment
+cp .env.example .env
+# Add your GROQ_API_KEY to .env
+# Optionally add VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
+
+# 4. Start the app (frontend + AI server)
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Environment Variables
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GROQ_API_KEY` | Yes | Free at console.groq.com |
+| `VITE_SUPABASE_URL` | Optional | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Optional | Supabase anon key |
+
+> Without Supabase credentials, the app runs in **local mode** — data is stored in localStorage.
+
+---
+
+## Database Schema (Supabase)
+
+```sql
+profiles   -- User profile linked to Supabase Auth
+journals   -- Named journal books
+entries    -- Journal text + AI results (sentiment, distortions JSONB)
+insights   -- AI-generated reflective mirror questions
 ```
+
+Migration: `supabase/migrations/001_initial_schema.sql`
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── analysis/      # SentimentBadge, DistortionBadge, MirrorPrompt
+│   ├── grounding/     # GroundingAid (5-4-3-2-1), CrisisSupport
+│   └── ui/            # Button, Card, Input, AIDisclosureBanner
+├── pages/             # AuthPage, DashboardPage, JournalPage, JourneyPage
+├── hooks/             # useJournals, useEntries (React Query)
+├── lib/               # api.ts (Supabase/local hybrid), supabase.ts, localData.ts
+└── types/             # TypeScript interfaces
+
+netlify/functions/
+└── analyze-entry.mjs  # Serverless AI analysis via Groq
+
+supabase/
+├── functions/         # Edge Function for production Supabase deploy
+└── migrations/        # SQL schema with RLS policies
+```
+
+---
+
+## Netlify Deployment
+
+1. Push to GitHub — Netlify auto-deploys from `main`
+2. Go to **Netlify → Site config → Environment variables** and add:
+   - `GROQ_API_KEY`
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+3. Trigger a redeploy
+
+---
+
+## Academic Context
+
+Built for the **Applied Artificial Intelligence** course at **Miami Dade College**, demonstrating:
+- Real-world NLP (CBT-based cognitive distortion detection)
+- Responsible AI practices (disclosure, non-diagnosis, crisis resources)
+- Full-stack AI deployment (Groq LLM + Supabase + Netlify serverless)
+- Ethical design in mental health technology
